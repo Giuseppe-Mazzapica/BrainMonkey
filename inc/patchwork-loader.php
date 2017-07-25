@@ -12,20 +12,38 @@
  * @package BrainMonkey
  */
 
-if (function_exists('Patchwork\redefine')) {
+namespace Brain\Monkey\PatchworkLoader;
+
+if (defined(__NAMESPACE__.'\\PATCHWORK_LOADER_REQUIRED')) {
     return;
 }
 
-if (file_exists(dirname(dirname(dirname(__DIR__)))."/antecedent/patchwork/Patchwork.php")) {
-    /** @noinspection PhpIncludeInspection */
-    @require_once dirname(dirname(dirname(__DIR__)))."/antecedent/patchwork/Patchwork.php";
-} elseif (file_exists(dirname(__DIR__)."/vendor/antecedent/patchwork/Patchwork.php")) {
-    /** @noinspection PhpIncludeInspection */
-    @require_once dirname(__DIR__)."/vendor/antecedent/patchwork/Patchwork.php";
+const PATCHWORK_LOADER_REQUIRED = 1;
+
+/**
+ * Require Patchwork.php if not already required.
+ *
+ * @throws \Brain\Monkey\Exception In case Patchwork.php could not be found.
+ */
+function loadPatchwork()
+{
+    if (function_exists('\Patchwork\redefine')) {
+        return;
+    }
+
+    if (file_exists(dirname(dirname(dirname(__DIR__)))."/antecedent/patchwork/Patchwork.php")) {
+        /** @noinspection PhpIncludeInspection */
+        @require_once dirname(dirname(dirname(__DIR__)))."/antecedent/patchwork/Patchwork.php";
+    } elseif (file_exists(dirname(__DIR__)."/vendor/antecedent/patchwork/Patchwork.php")) {
+        /** @noinspection PhpIncludeInspection */
+        @require_once dirname(__DIR__)."/vendor/antecedent/patchwork/Patchwork.php";
+    }
+
+    if ( ! function_exists('\Patchwork\redefine')) {
+        throw new \Brain\Monkey\Exception(
+            'Brain Monkey was unable to load Patchwork. Please require Patchwork.php by yourself before running tests.'
+        );
+    }
 }
 
-if ( ! function_exists('Patchwork\redefine')) {
-    throw new \Brain\Monkey\Exception(
-        'Brain Monkey was unable to load Patchwork. Please require Patchwork.php by yourself before running tests.'
-    );
-}
+getenv('BRAINMONKEY_PATCHWORK_NO_AUTOLOAD') or loadPatchwork();

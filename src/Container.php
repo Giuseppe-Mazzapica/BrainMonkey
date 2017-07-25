@@ -35,7 +35,10 @@ final class Container
      */
     public static function instance()
     {
-        self::$instance or self::$instance = new static();
+        if ( ! self::$instance) {
+            PatchworkLoader\loadPatchwork();
+            self::$instance = new static();
+        }
 
         return self::$instance;
     }
